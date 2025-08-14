@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CroweCode AI Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .models-icon { background: linear-gradient(45deg, #ff6b6b, #ee5a24); }
+        .cloud-icon { background: linear-gradient(45deg, #74b9ff, #0984e3); }
+        .api-icon { background: linear-gradient(45deg, #a29bfe, #6c5ce7); }
+        .status-icon { background: linear-gradient(45deg, #00b894, #00a085); }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .card-content {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .model-item {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .model-item:hover {
+            transform: scale(1.05);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online { background: #00b894; }
+        .status-cloud { background: #74b9ff; }
+
+        .interactive-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .response-area {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 150px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            white-space: pre-wrap;
+        }
+
+        .metric {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .loading {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">CroweCode</div>
+            <div class="tagline">Next-Generation AI Platform</div>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon models-icon">🧠</div>
+                    <div class="card-title">Available Models</div>
+                </div>
+                <div class="card-content">
+                    <div class="model-grid">
+                        <div class="model-item">CroweCode-Alpha</div>
+                        <div class="model-item">CroweCode-Beta</div>
+                        <div class="model-item">CroweCode-Gamma</div>
+                        <div class="model-item">CroweCode-Delta</div>
+                        <div class="model-item">CroweCode-Epsilon</div>
+                        <div class="model-item">CroweCode-Zeta</div>
+                        <div class="model-item">CroweCode-Eta</div>
+                        <div class="model-item">CroweCode-Theta</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon cloud-icon">☁️</div>
+                    <div class="card-title">Cloud Storage</div>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <div class="metric-value">S3</div>
+                        <div class="metric-label">Provider</div>
+                    </div>
+                    <p><span class="status-indicator status-cloud"></span>Connected to AWS S3</p>
+                    <p><span class="status-indicator status-online"></span>Bucket: crowecode-models-*</p>
+                    <p><span class="status-indicator status-online"></span>Region: us-east-1</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon api-icon">⚡</div>
+                    <div class="card-title">API Status</div>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <div class="metric-value">8000</div>
+                        <div class="metric-label">Port</div>
+                    </div>
+                    <p><span class="status-indicator status-online"></span>Server Online</p>
+                    <p><span class="status-indicator status-online"></span>Rate Limiting Active</p>
+                    <p><span class="status-indicator status-online"></span>Authentication Enabled</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon status-icon">📊</div>
+                    <div class="card-title">Platform Stats</div>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <div class="metric-value">8</div>
+                        <div class="metric-label">Models Ready</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">1</div>
+                        <div class="metric-label">Cloud Provider</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="interactive-section">
+            <h2 style="margin-bottom: 30px; color: #2d3748; text-align: center;">🚀 Try CroweCode AI</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <div class="input-group">
+                        <label for="model-select">Select Model:</label>
+                        <select id="model-select">
+                            <option value="CroweCode-Alpha">CroweCode-Alpha (Recommended)</option>
+                            <option value="CroweCode-Beta">CroweCode-Beta</option>
+                            <option value="CroweCode-Gamma">CroweCode-Gamma</option>
+                            <option value="CroweCode-Delta">CroweCode-Delta</option>
+                            <option value="CroweCode-Epsilon">CroweCode-Epsilon</option>
+                            <option value="CroweCode-Zeta">CroweCode-Zeta</option>
+                            <option value="CroweCode-Eta">CroweCode-Eta</option>
+                            <option value="CroweCode-Theta">CroweCode-Theta</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="prompt-input">Your Prompt:</label>
+                        <textarea id="prompt-input" rows="6" placeholder="Enter your prompt here...">Write a Python function to calculate fibonacci numbers</textarea>
+                    </div>
+
+                    <button class="btn" onclick="generateResponse()">Generate with CroweCode</button>
+                </div>
+
+                <div>
+                    <label>Response:</label>
+                    <div id="response-area" class="response-area">Ready to generate AI responses...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generateResponse() {
+            const model = document.getElementById('model-select').value;
+            const prompt = document.getElementById('prompt-input').value;
+            const responseArea = document.getElementById('response-area');
+            
+            if (!prompt.trim()) {
+                responseArea.textContent = 'Please enter a prompt first.';
+                return;
+            }
+
+            responseArea.textContent = 'Generating response with ' + model + '...';
+            responseArea.classList.add('loading');
+
+            try {
+                const response = await fetch('http://localhost:8000/crowecode/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': 'crowecode-dev-key-12345'
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: prompt,
+                        max_tokens: 500
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                responseArea.textContent = `Model: ${data.model}\n\nResponse:\n${data.response}\n\nGenerated in: ${data.generation_time}ms`;
+            } catch (error) {
+                responseArea.textContent = `Error: ${error.message}\n\nTip: Make sure the CroweCode API server is running on port 8000`;
+            } finally {
+                responseArea.classList.remove('loading');
+            }
+        }
+
+        // Auto-refresh status indicators
+        setInterval(async () => {
+            try {
+                const response = await fetch('http://localhost:8000/crowecode/models', {
+                    headers: { 'X-API-Key': 'crowecode-dev-key-12345' }
+                });
+                // Update status indicators based on response
+            } catch (error) {
+                // Handle offline status
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

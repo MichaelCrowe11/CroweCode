@@ -1,0 +1,28 @@
+agents:
+  - id: CL-001
+    name: Marcus Chen Wei
+    division: executive
+    expertise:
+      - operations_research
+      - complex_systems_optimization
+      - corporate_transformation
+    specialization: Multi-variable optimization and strategic planning
+    status: active
+  - id: CL-011
+    name: Victoria Pemberton
+    division: financial
+    expertise:
+      - financial_engineering
+      - quantitative_modeling
+      - portfolio_theory
+    specialization: Complex financial instrument design
+    status: active
+  - id: CL-023
+    name: Raj Patel
+    division: technical
+    expertise:
+      - machine_learning
+      - neural_networks
+      - deep_learning
+    specialization: AI system design and optimization
+    status: active

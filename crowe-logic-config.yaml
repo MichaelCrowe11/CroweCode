@@ -1,0 +1,112 @@
+models:
+  crowe-logic-analytics:
+    display_name: "Crowe Logic Analytics"
+    description: "Advanced reasoning and strategic intelligence"
+    capabilities:
+      - complex_reasoning
+      - strategic_analysis
+      - multi_step_logic
+      - contextual_understanding
+      - business_intelligence
+  crowe-logic-development:
+    display_name: "Crowe Logic Development"
+    description: "Code generation and technical intelligence"
+    capabilities:
+      - syntax_generation
+      - bug_detection
+      - code_optimization
+      - architecture_design
+      - devops_automation
+  crowe-logic-creative:
+    display_name: "Crowe Logic Creative"
+    description: "Content creation and brand intelligence"
+    capabilities:
+      - creative_writing
+      - brand_messaging
+      - ideation
+      - narrative_construction
+      - marketing_content
+  crowe-logic-intelligence:
+    display_name: "Crowe Logic Intelligence"
+    description: "Data analysis and business intelligence"
+    capabilities:
+      - data_analysis
+      - business_intelligence
+      - summarization
+      - pattern_recognition
+      - performance_optimization
+  crowe-logic-assistant:
+    display_name: "Crowe Logic Assistant"
+    description: "Conversational and support intelligence"
+    capabilities:
+      - conversational_ai
+      - customer_support
+      - multi_turn_dialog
+      - natural_language_understanding
+      - context_retention
+  crowe-logic-global:
+    display_name: "Crowe Logic Global"
+    description: "Translation and cultural intelligence"
+    capabilities:
+      - translation
+      - localization
+      - cultural_adaptation
+      - language_detection
+      - global_communication
+  crowe-logic-research:
+    display_name: "Crowe Logic Research"
+    description: "Information and verification intelligence"
+    capabilities:
+      - information_retrieval
+      - fact_verification
+      - citation_management
+      - research_analysis
+      - knowledge_synthesis
+  crowe-logic-custom:
+    display_name: "Crowe Logic Custom"
+    description: "Specialized and industry intelligence"
+    capabilities:
+      - custom_workflows
+      - industry_specific
+      - hybrid_solutions
+      - experimental_features
+      - specialized_processing
+
+# Platform Configuration
+platform:
+  name: "Crowe Logic"
+  tagline: "Logic. Applied."
+  description: "Intelligent Solutions for Every Challenge"
+  version: "2.0"
+  
+# API Configuration
+api:
+  base_path: "/crowe-logic"
+  endpoints:
+    generate: "/crowe-logic/generate"
+    models: "/crowe-logic/models"
+    analytics: "/crowe-logic/analytics"
+    assistant: "/crowe-logic/assistant"
+    status: "/crowe-logic/status"
+  
+# Cloud Configuration
+cloud:
+  aws:
+    bucket_prefix: "crowe-logic-models"
+    storage_path: "crowe-logic-ai/"
+  
+# Branding
+branding:
+  primary_color: "#2C5282"    # Deep Blue
+  secondary_color: "#667EEA"  # Electric Purple
+  accent_color: "#38A169"     # Bright Green
+  neutral_color: "#2D3748"    # Charcoal
+  
+  fonts:
+    primary: "Inter"
+    secondary: "Monaco"
+    
+  logo:
+    text: "Crowe Logic"
+    icon: "🧠"
+    style: "modern_minimal"

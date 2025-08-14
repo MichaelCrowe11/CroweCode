@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowe Logic - Logic. Applied.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2C5282 0%, #667EEA 50%, #38A169 100%);
+            min-height: 100vh;
+            color: #2D3748;
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            color: white;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 40px;
+            z-index: 2;
+        }
+
+        .logo {
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            letter-spacing: -2px;
+        }
+
+        .logo-icon {
+            font-size: 4rem;
+            margin-right: 20px;
+            display: inline-block;
+            animation: pulse 3s infinite;
+        }
+
+        .tagline {
+            font-size: 2.2rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            letter-spacing: 1px;
+        }
+
+        .description {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 18px 35px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.95);
+            color: #2C5282;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            background: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.8);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-brain {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-brain:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .floating-brain:nth-child(2) { top: 60%; right: 15%; animation-delay: 2s; }
+        .floating-brain:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 4s; }
+
+        .services-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 100px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2C5282;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #4A5568;
+            margin-bottom: 60px;
+        }
+
+        .intelligence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .intelligence-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .intelligence-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2C5282, #667EEA);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2C5282;
+            margin-bottom: 15px;
+        }
+
+        .card-description {
+            color: #4A5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-features {
+            list-style: none;
+            color: #2D3748;
+        }
+
+        .card-features li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .card-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #38A169;
+            font-weight: bold;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #2D3748 0%, #2C5282 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667EEA, #38A169);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .footer {
+            background: #2D3748;
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            color: #667EEA;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            padding: 5px 0;
+            opacity: 0.8;
+        }
+
+        .footer-section ul li:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 30px;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @media (max-width: 768px) {
+            .logo { font-size: 3rem; }
+            .tagline { font-size: 1.8rem; }
+            .description { font-size: 1.1rem; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .intelligence-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="floating-elements">
+            <div class="floating-brain">🧠</div>
+            <div class="floating-brain">⚡</div>
+            <div class="floating-brain">🎯</div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="logo">
+                <span class="logo-icon">🧠</span>Crowe Logic
+            </div>
+            <div class="tagline">Logic. Applied.</div>
+            <div class="description">
+                Intelligent Solutions for Every Challenge<br>
+                Transform your business with reasoning-first AI that understands your industry and scales with your growth.
+            </div>
+            <div class="cta-buttons">
+                <a href="#demo" class="btn btn-primary">Experience the Intelligence</a>
+                <a href="#solutions" class="btn btn-secondary">Explore Solutions</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="solutions" class="services-section">
+        <div class="container">
+            <h2 class="section-title">Intelligence Models</h2>
+            <p class="section-subtitle">Eight specialized AI models designed for comprehensive business intelligence</p>
+            
+            <div class="intelligence-grid">
+                <div class="intelligence-card">
+                    <div class="card-icon">🧠</div>
+                    <h3 class="card-title">Crowe Logic Analytics</h3>
+                    <p class="card-description">Advanced reasoning and strategic intelligence for complex business challenges.</p>
+                    <ul class="card-features">
+                        <li>Strategic business analysis</li>
+                        <li>Financial modeling & risk assessment</li>
+                        <li>Multi-step logical problem solving</li>
+                        <li>Scientific research support</li>
+                    </ul>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="card-icon">💻</div>
+                    <h3 class="card-title">Crowe Logic Development</h3>
+                    <p class="card-description">Code generation and technical intelligence for modern software development.</p>
+                    <ul class="card-features">
+                        <li>Full-stack application development</li>
+                        <li>Legacy code modernization</li>
+                        <li>API & microservices architecture</li>
+                        <li>DevOps automation</li>
+                    </ul>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="card-icon">🎨</div>
+                    <h3 class="card-title">Crowe Logic Creative</h3>
+                    <p class="card-description">Content creation and brand intelligence for compelling communications.</p>
+                    <ul class="card-features">
+                        <li>Marketing campaigns & brand messaging</li>
+                        <li>Creative writing & storytelling</li>
+                        <li>Product descriptions & copywriting</li>
+                        <li>Educational content development</li>
+                    </ul>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="card-icon">📊</div>
+                    <h3 class="card-title">Crowe Logic Intelligence</h3>
+                    <p class="card-description">Data analysis and business intelligence for informed decision-making.</p>
+                    <ul class="card-features">
+                        <li>Business intelligence & KPI analysis</li>
+                        <li>Customer behavior analysis</li>
+                        <li>Financial statement analysis</li>
+                        <li>Supply chain optimization</li>
+                    </ul>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="card-icon">💬</div>
+                    <h3 class="card-title">Crowe Logic Assistant</h3>
+                    <p class="card-description">Conversational and support intelligence for enhanced customer experiences.</p>
+                    <ul class="card-features">
+                        <li>24/7 customer service automation</li>
+                        <li>Enterprise virtual assistants</li>
+                        <li>HR support & employee onboarding</li>
+                        <li>Healthcare patient communication</li>
+                    </ul>
+                </div>
+
+                <div class="intelligence-card">
+                    <div class="card-icon">🌍</div>
+                    <h3 class="card-title">Crowe Logic Global</h3>
+                    <p class="card-description">Translation and cultural intelligence for worldwide business expansion.</p>
+                    <ul class="card-features">
+                        <li>Multi-language business expansion</li>
+                        <li>Technical documentation translation</li>
+                        <li>Cultural localization & adaptation</li>
+                        <li>Global market entry strategies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Proven Business Impact</h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.8);">
+                Real results from organizations that chose logic-first AI
+            </p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">70%</div>
+                    <div class="stat-label">Cost Reduction</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10x</div>
+                    <div class="stat-label">Faster Development</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Availability</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Scalability</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Intelligence Models</h3>
+                    <ul>
+                        <li>Crowe Logic Analytics</li>
+                        <li>Crowe Logic Development</li>
+                        <li>Crowe Logic Creative</li>
+                        <li>Crowe Logic Intelligence</li>
+                        <li>Crowe Logic Assistant</li>
+                        <li>Crowe Logic Global</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Industries</h3>
+                    <ul>
+                        <li>Financial Services</li>
+                        <li>Healthcare & Life Sciences</li>
+                        <li>Technology & Software</li>
+                        <li>Retail & E-commerce</li>
+                        <li>Manufacturing</li>
+                        <li>Legal Services</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li>API Documentation</li>
+                        <li>Developer Portal</li>
+                        <li>Case Studies</li>
+                        <li>Best Practices</li>
+                        <li>Support Center</li>
+                        <li>Status Page</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Company</h3>
+                    <ul>
+                        <li>About Crowe Logic</li>
+                        <li>Leadership Team</li>
+                        <li>Careers</li>
+                        <li>Press & Media</li>
+                        <li>Contact Sales</li>
+                        <li>Support</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Crowe Logic. All rights reserved. | Logic. Applied. | Intelligent Solutions for Every Challenge</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add entrance animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe cards for animation
+        document.querySelectorAll('.intelligence-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

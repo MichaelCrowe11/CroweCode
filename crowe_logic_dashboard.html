@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowe Logic API Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2C5282 0%, #667EEA 100%);
+            min-height: 100vh;
+            color: #2D3748;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px 20px;
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #2C5282;
+            margin-bottom: 5px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: #667EEA;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #4A5568;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, #2C5282, #667EEA);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-icon {
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-radius: 15px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2C5282;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: #38A169;
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #2C5282, #667EEA);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #2C5282;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #4A5568;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .metric-change {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            background: rgba(56, 161, 105, 0.1);
+            color: #38A169;
+        }
+
+        .models-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2C5282;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .model-card {
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .model-card:hover {
+            border-color: #667EEA;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .model-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .model-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2C5282, #667EEA);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            font-size: 1.1rem;
+        }
+
+        .model-name {
+            font-weight: 700;
+            color: #2C5282;
+            font-size: 1.1rem;
+        }
+
+        .model-description {
+            color: #4A5568;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .model-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: rgba(56, 161, 105, 0.1);
+            color: #38A169;
+        }
+
+        .api-example {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .code-block {
+            background: #2D3748;
+            color: #E2E8F0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .code-comment {
+            color: #68D391;
+        }
+
+        .code-keyword {
+            color: #667EEA;
+        }
+
+        .code-string {
+            color: #F687B3;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <span class="logo-icon">🧠</span>Crowe Logic
+                </div>
+                <div class="tagline">Logic. Applied.</div>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">🧠</span>
+                            Intelligence Models
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📡</span>
+                            API Console
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📈</span>
+                            Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">☁️</span>
+                            Cloud Storage
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">🔐</span>
+                            Security
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">📚</span>
+                            Documentation
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 class="page-title">Intelligence Dashboard</h1>
+                <div class="user-info">
+                    <div class="api-status">
+                        <div class="status-indicator"></div>
+                        API Online
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">📊</div>
+                    </div>
+                    <div class="metric-value">127,456</div>
+                    <div class="metric-label">API Requests Today</div>
+                    <div class="metric-change positive">+23% vs yesterday</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">🧠</div>
+                    </div>
+                    <div class="metric-value">8</div>
+                    <div class="metric-label">Active Intelligence Models</div>
+                    <div class="metric-change positive">All systems operational</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">⚡</div>
+                    </div>
+                    <div class="metric-value">245ms</div>
+                    <div class="metric-label">Average Response Time</div>
+                    <div class="metric-change positive">-12ms improvement</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">✅</div>
+                    </div>
+                    <div class="metric-value">99.97%</div>
+                    <div class="metric-label">Uptime (30 days)</div>
+                    <div class="metric-change positive">Above SLA target</div>
+                </div>
+            </div>
+
+            <!-- Intelligence Models Section -->
+            <div class="models-section">
+                <div class="section-header">
+                    <h2 class="section-title">Intelligence Models Status</h2>
+                </div>
+                
+                <div class="models-grid">
+                    <div class="model-card">
+                        <div class="model-header">
+                            <div class="model-icon">🧠</div>
+                            <div class="model-name">Crowe Logic Analytics</div>
+                        </div>
+                        <div class="model-description">Advanced reasoning and strategic intelligence for complex business challenges</div>
+                        <div class="model-status">
+                            <div class="status-badge active">Active</div>
+                            <span style="color: #4A5568; font-size: 0.9rem;">2.1k requests/hour</span>
+                        </div>
+                    </div>
+
+                    <div class="model-card">
+                        <div class="model-header">
+                            <div class="model-icon">💻</div>
+                            <div class="model-name">Crowe Logic Development</div>
+                        </div>
+                        <div class="model-description">Code generation and technical intelligence for modern development</div>
+                        <div class="model-status">
+                            <div class="status-badge active">Active</div>
+                            <span style="color: #4A5568; font-size: 0.9rem;">1.8k requests/hour</span>
+                        </div>
+                    </div>
+
+                    <div class="model-card">
+                        <div class="model-header">
+                            <div class="model-icon">🎨</div>
+                            <div class="model-name">Crowe Logic Creative</div>
+                        </div>
+                        <div class="model-description">Content creation and brand intelligence for compelling communications</div>
+                        <div class="model-status">
+                            <div class="status-badge active">Active</div>
+                            <span style="color: #4A5568; font-size: 0.9rem;">1.5k requests/hour</span>
+                        </div>
+                    </div>
+
+                    <div class="model-card">
+                        <div class="model-header">
+                            <div class="model-icon">📊</div>
+                            <div class="model-name">Crowe Logic Intelligence</div>
+                        </div>
+                        <div class="model-description">Data analysis and business intelligence for informed decision-making</div>
+                        <div class="model-status">
+                            <div class="status-badge active">Active</div>
+                            <span style="color: #4A5568; font-size: 0.9rem;">2.3k requests/hour</span>
+                        </div>
+                    </div>
+
+                    <div class="model-card">
+                        <div class="model-header">
+                            <div class="model-icon">💬</div>
+                            <div class="model-name">Crowe Logic Assistant</div>
+                        </div>
+                        <div class="model-description">Conversational and support intelligence for enhanced experiences</div>
+                        <div class="model-status">
+                            <div class="status-badge active">Active</div>
+                            <span style="color: #4A5568; font-size: 0.9rem;">3.1k requests/hour</span>
+                        </div>
+                    </div>
+
+                    <div class="model-card">
+                        <div class="model-header">
+                            <div class="model-icon">🌍</div>
+                            <div class="model-name">Crowe Logic Global</div>
+                        </div>
+                        <div class="model-description">Translation and cultural intelligence for worldwide expansion</div>
+                        <div class="model-status">
+                            <div class="status-badge active">Active</div>
+                            <span style="color: #4A5568; font-size: 0.9rem;">876 requests/hour</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Example Section -->
+            <div class="api-example">
+                <div class="section-header">
+                    <h2 class="section-title">API Integration Example</h2>
+                </div>
+                
+                <p style="color: #4A5568; margin-bottom: 20px;">
+                    Here's how to integrate Crowe Logic intelligence into your application:
+                </p>
+
+                <div class="code-block">
+<span class="code-comment"># Python Integration Example</span>
+<span class="code-keyword">import</span> requests
+
+<span class="code-comment"># Configure Crowe Logic API</span>
+API_BASE = <span class="code-string">"https://api.crowe-logic.com"</span>
+API_KEY = <span class="code-string">"your-crowe-logic-api-key"</span>
+
+<span class="code-comment"># Generate business intelligence</span>
+response = requests.post(
+    <span class="code-string">f"{API_BASE}/crowe-logic/generate"</span>,
+    headers={<span class="code-string">"X-API-Key"</span>: API_KEY},
+    json={
+        <span class="code-string">"model"</span>: <span class="code-string">"Crowe Logic Analytics"</span>,
+        <span class="code-string">"prompt"</span>: <span class="code-string">"Analyze Q3 financial performance"</span>,
+        <span class="code-string">"max_tokens"</span>: 500
+    }
+)
+
+<span class="code-comment"># Process intelligent response</span>
+result = response.json()
+<span class="code-keyword">print</span>(result[<span class="code-string">"response"</span>])
+                </div>
+
+                <p style="color: #4A5568; margin-top: 15px;">
+                    <strong>New Endpoint Structure:</strong> All APIs now use the <code>/crowe-logic/*</code> path structure for consistency with our "Logic. Applied." positioning.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate real-time metrics updates
+        function updateMetrics() {
+            const requestsElement = document.querySelector('.metric-value');
+            const currentValue = parseInt(requestsElement.textContent.replace(',', ''));
+            const newValue = currentValue + Math.floor(Math.random() * 50) + 10;
+            requestsElement.textContent = newValue.toLocaleString();
+        }
+
+        // Update every 5 seconds for demo
+        setInterval(updateMetrics, 5000);
+
+        // Add hover effects to model cards
+        document.querySelectorAll('.model-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(56, 161, 105, 0.05))';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.background = 'white';
+            });
+        });
+    </script>
+</body>
+</html>

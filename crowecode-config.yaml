@@ -1,0 +1,57 @@
+models:
+  crowecode-alpha:
+    display_name: "CroweCode Alpha"
+    description: "Advanced reasoning and general intelligence"
+    capabilities:
+      - complex_reasoning
+      - multi_step_logic
+      - contextual_understanding
+  crowecode-beta:
+    display_name: "CroweCode Beta"
+    description: "Specialized code generation engine"
+    capabilities:
+      - syntax_generation
+      - bug_detection
+      - code_optimization
+  crowecode-gamma:
+    display_name: "CroweCode Gamma"
+    description: "Creative content specialist"
+    capabilities:
+      - creative_writing
+      - ideation
+      - narrative_construction
+  crowecode-delta:
+    display_name: "CroweCode Delta"
+    description: "Analysis and data processing"
+    capabilities:
+      - data_analysis
+      - summarization
+      - optimization
+  crowecode-epsilon:
+    display_name: "CroweCode Epsilon"
+    description: "Conversational and support"
+    capabilities:
+      - chat
+      - customer_support
+      - multi_turn_dialog
+  crowecode-zeta:
+    display_name: "CroweCode Zeta"
+    description: "Translation and localization"
+    capabilities:
+      - translation
+      - localization
+      - language_detection
+  crowecode-eta:
+    display_name: "CroweCode Eta"
+    description: "Research and fact-checking"
+    capabilities:
+      - retrieval
+      - verification
+      - citation
+  crowecode-theta:
+    display_name: "CroweCode Theta"
+    description: "Vision and multimodal"
+    capabilities:
+      - image_understanding
+      - multimodal_reasoning
+      - vision_language

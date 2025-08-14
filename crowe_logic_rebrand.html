@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowe Logic - Intelligent Solutions for Every Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2C5282 0%, #667EEA 50%, #764BA2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: -2px;
+        }
+
+        .logo-accent {
+            color: #38A169;
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 15px 30px;
+            margin: 30px auto;
+            max-width: 800px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin: 50px 0;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2C5282, #667EEA, #38A169);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .product-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .product-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-right: 15px;
+            background: linear-gradient(45deg, #2C5282, #667EEA);
+            color: white;
+            box-shadow: 0 5px 15px rgba(44, 82, 130, 0.3);
+        }
+
+        .product-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2D3748;
+            margin-bottom: 5px;
+        }
+
+        .product-subtitle {
+            color: #718096;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .product-description {
+            color: #4A5568;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        .capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .capability-tag {
+            background: linear-gradient(45deg, #2C5282, #667EEA);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .industries-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 50px;
+            margin: 50px 0;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2D3748;
+            margin-bottom: 20px;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: #718096;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .industries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .industry-item {
+            padding: 25px;
+            border-radius: 15px;
+            background: rgba(44, 82, 130, 0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .industry-item:hover {
+            border-color: #667EEA;
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .industry-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .industry-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2D3748;
+            margin-bottom: 10px;
+        }
+
+        .industry-description {
+            color: #4A5568;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 60px 0;
+            color: white;
+        }
+
+        .cta-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .cta-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #38A169, #2C5282);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            color: #38A169;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .nav-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Crowe <span class="logo-accent">Logic</span></div>
+            <div class="tagline">Logic. Applied.</div>
+            <div class="subtitle">Intelligent solutions for every challenge. Transform your business with AI that thinks like you do.</div>
+        </div>
+
+        <div class="nav-bar">
+            <a href="#products" class="nav-item">Solutions</a>
+            <a href="#industries" class="nav-item">Industries</a>
+            <a href="#platform" class="nav-item">Platform</a>
+            <a href="#company" class="nav-item">Company</a>
+            <a href="#contact" class="nav-item">Contact</a>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">AI Specialists</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">70%</div>
+                <div class="stat-label">Cost Reduction</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Availability</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Scalability</div>
+            </div>
+        </div>
+
+        <div class="products-grid" id="products">
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">🧠</div>
+                    <div>
+                        <div class="product-title">Crowe Logic Analytics</div>
+                        <div class="product-subtitle">Advanced Reasoning & Strategy</div>
+                    </div>
+                </div>
+                <div class="product-description">
+                    Power your strategic decisions with advanced AI reasoning. From market analysis to scientific research, Analytics provides the intelligence you need for complex problem-solving.
+                </div>
+                <div class="capabilities">
+                    <span class="capability-tag">Strategic Planning</span>
+                    <span class="capability-tag">Risk Analysis</span>
+                    <span class="capability-tag">Decision Support</span>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">💻</div>
+                    <div>
+                        <div class="product-title">Crowe Logic Development</div>
+                        <div class="product-subtitle">Code Generation & Optimization</div>
+                    </div>
+                </div>
+                <div class="product-description">
+                    Accelerate your development lifecycle with intelligent code generation, optimization, and quality assurance. From MVP to enterprise scale.
+                </div>
+                <div class="capabilities">
+                    <span class="capability-tag">Code Generation</span>
+                    <span class="capability-tag">Bug Detection</span>
+                    <span class="capability-tag">Performance Tuning</span>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">🎨</div>
+                    <div>
+                        <div class="product-title">Crowe Logic Creative</div>
+                        <div class="product-subtitle">Content & Brand Intelligence</div>
+                    </div>
+                </div>
+                <div class="product-description">
+                    Create compelling content that resonates with your audience. From marketing campaigns to brand messaging, Creative understands your voice.
+                </div>
+                <div class="capabilities">
+                    <span class="capability-tag">Content Creation</span>
+                    <span class="capability-tag">Brand Messaging</span>
+                    <span class="capability-tag">Campaign Design</span>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">📊</div>
+                    <div>
+                        <div class="product-title">Crowe Logic Intelligence</div>
+                        <div class="product-subtitle">Data Analysis & Insights</div>
+                    </div>
+                </div>
+                <div class="product-description">
+                    Transform raw data into actionable business intelligence. Discover patterns, predict trends, and make data-driven decisions with confidence.
+                </div>
+                <div class="capabilities">
+                    <span class="capability-tag">Pattern Recognition</span>
+                    <span class="capability-tag">Predictive Analytics</span>
+                    <span class="capability-tag">Business Intelligence</span>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">💬</div>
+                    <div>
+                        <div class="product-title">Crowe Logic Assistant</div>
+                        <div class="product-subtitle">Conversational AI & Support</div>
+                    </div>
+                </div>
+                <div class="product-description">
+                    Deliver exceptional customer experiences with intelligent conversational AI. 24/7 support that learns and adapts to your business needs.
+                </div>
+                <div class="capabilities">
+                    <span class="capability-tag">Customer Service</span>
+                    <span class="capability-tag">Virtual Assistant</span>
+                    <span class="capability-tag">Multi-channel Support</span>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">🌍</div>
+                    <div>
+                        <div class="product-title">Crowe Logic Global</div>
+                        <div class="product-subtitle">Translation & Localization</div>
+                    </div>
+                </div>
+                <div class="product-description">
+                    Expand globally with intelligent translation and cultural adaptation. Break down language barriers while maintaining your brand's authentic voice.
+                </div>
+                <div class="capabilities">
+                    <span class="capability-tag">Translation</span>
+                    <span class="capability-tag">Cultural Adaptation</span>
+                    <span class="capability-tag">Global Scaling</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="industries-section" id="industries">
+            <div class="section-title">Industries We Serve</div>
+            <div class="section-subtitle">
+                Crowe Logic adapts to your industry's unique challenges and requirements, delivering specialized intelligence where you need it most.
+            </div>
+            
+            <div class="industries-grid">
+                <div class="industry-item">
+                    <div class="industry-icon">🏦</div>
+                    <div class="industry-name">Financial Services</div>
+                    <div class="industry-description">Risk analysis, fraud detection, algorithmic trading, and regulatory compliance</div>
+                </div>
+                
+                <div class="industry-item">
+                    <div class="industry-icon">🏥</div>
+                    <div class="industry-name">Healthcare</div>
+                    <div class="industry-description">Clinical decision support, drug discovery, patient care, and medical research</div>
+                </div>
+                
+                <div class="industry-item">
+                    <div class="industry-icon">🛒</div>
+                    <div class="industry-name">Retail & E-commerce</div>
+                    <div class="industry-description">Personalization, inventory optimization, customer experience, and demand forecasting</div>
+                </div>
+                
+                <div class="industry-item">
+                    <div class="industry-icon">🏭</div>
+                    <div class="industry-name">Manufacturing</div>
+                    <div class="industry-description">Quality control, predictive maintenance, supply chain optimization, and process automation</div>
+                </div>
+                
+                <div class="industry-item">
+                    <div class="industry-icon">⚖️</div>
+                    <div class="industry-name">Legal Services</div>
+                    <div class="industry-description">Document analysis, legal research, contract review, and case management</div>
+                </div>
+                
+                <div class="industry-item">
+                    <div class="industry-icon">🎓</div>
+                    <div class="industry-name">Education</div>
+                    <div class="industry-description">Personalized learning, content creation, assessment, and academic research</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <div class="cta-title">Ready to Apply Logic to Your Business?</div>
+            <div class="cta-description">
+                Join forward-thinking organizations already transforming their operations with Crowe Logic's intelligent solutions.
+            </div>
+            <div class="cta-buttons">
+                <a href="#demo" class="btn btn-primary">Start Free Trial</a>
+                <a href="#contact" class="btn btn-secondary">Schedule Demo</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
