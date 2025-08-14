@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# VCS
+.git/
+.gitignore
+
+# Virtual envs
+.venv/
+.env
+.env.*
+
+# Tests cache
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Not needed in image
+*.ipynb_checkpoints/
+
+# Large local assets (keep these out; mount if needed)
+model.safetensors.index.json
+vocab.json
+tokenizer.json
+merges.txt
+tokenizer_config.json
+voice/
+use_cases_interactive.html
+crowe_logic_dashboard.html
+crowe_logic_rebrand.html
+crowe_logic_website.html
+api_docs.html
+*.md

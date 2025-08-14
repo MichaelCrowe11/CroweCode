@@ -1,0 +1,8 @@
+# Optional ML extras for agents that need transformers/torch
+transformers>=4.20.0
+# torch pinned can be large; install via CUDA-specific wheels in prod if needed
+# torch>=2.0.0
+accelerate==0.34.2
+sentencepiece==0.2.0
+kagglehub==0.3.2
+strands-agents==1.4.0

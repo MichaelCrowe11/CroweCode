@@ -1,0 +1,28 @@
+# Python/venv
+__pycache__/
+*.pyc
+.venv/
+
+# VCS and caches
+.git/
+.pytest_cache/
+
+# Build/dist
+build/
+dist/
+*.egg-info/
+
+# Models/tokenizers (do not commit third-party assets)
+*.safetensors
+*.safetensors.index.json
+vocab.json
+tokenizer.json
+merges.txt
+tokenizer_config.json
+special_tokens_map.json
+
+# Local assets
+voice/
+
+# OS/editor
+.DS_Store

@@ -1,0 +1,12 @@
+# Crowe Logic NOTICE
+
+This product includes software developed by third parties:
+
+- vLLM Project (Apache License 2.0)
+  - Source: <https://github.com/vllm-project/vllm>
+  - Files/areas: tool parsing utilities and related patterns (e.g., `qwen3coder_tool_parser.py`)
+
+- Other dependencies are licensed under their respective permissive licenses.
+  - See `THIRD_PARTY_NOTICES.md` for a non-exhaustive list.
+
+No affiliation or endorsement by the upstream projects is implied.
