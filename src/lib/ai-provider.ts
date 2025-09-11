@@ -22,23 +22,23 @@ class AIProviderManager {
   }
 
   private initializeProviders() {
-    // Primary provider (xAI Grok - hidden from users)
-    if (process.env.XAI_API_KEY) {
+    // Primary provider (Claude - hidden from users)
+    if (process.env.ANTHROPIC_API_KEY) {
       this.providers.set('primary', {
         name: 'CroweCode Neural Engine',
-        endpoint: 'https://api.x.ai/v1/chat/completions',
-        model: 'grok-4-latest',
-        apiKey: process.env.XAI_API_KEY
+        endpoint: 'https://api.anthropic.com/v1/messages',
+        model: 'claude-3-5-sonnet-20241022',
+        apiKey: process.env.ANTHROPIC_API_KEY
       });
     }
 
-    // Fallback provider (Claude - hidden from users)
-    if (process.env.ANTHROPIC_API_KEY) {
-      this.providers.set('fallback', {
-        name: 'CroweCode Backup Engine',
-        endpoint: 'https://api.anthropic.com/v1/messages',
-        model: 'claude-3-opus-20240229',
-        apiKey: process.env.ANTHROPIC_API_KEY
+    // Secondary provider (xAI Grok - hidden from users)
+    if (process.env.XAI_API_KEY) {
+      this.providers.set('secondary', {
+        name: 'CroweCode Advanced Engine',
+        endpoint: 'https://api.x.ai/v1/chat/completions',
+        model: 'grok-4-latest',
+        apiKey: process.env.XAI_API_KEY
       });
     }
 
