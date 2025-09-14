@@ -1,7 +1,7 @@
 # Fly.io Configuration for Crowe Logic Platform
 # Run 'fly launch' to create app, then 'fly deploy' to deploy
 
-app = "crowe-logic-platform"
+app = "crowe-code-platform"
 primary_region = "iad"  # US East (Ashburn)
 kill_signal = "SIGINT"
 kill_timeout = 5
@@ -10,7 +10,7 @@ kill_timeout = 5
   dockerfile = "Dockerfile"
   
 [build.args]
-  NEXT_PUBLIC_APP_URL = "https://crowe-logic-platform.fly.dev"
+  NEXT_PUBLIC_APP_URL = "https://crowe-code-platform.fly.dev"
 
 [deploy]
   release_command = "npx prisma migrate deploy"
@@ -84,7 +84,7 @@ kill_timeout = 5
 
 # Persistent storage for uploads
 [mounts]
-  source = "crowe_data"
+  source = "crowe_code_data"
   destination = "/data"
 
 # Process groups for scaling
