@@ -51,15 +51,20 @@ enum UserRole {
 model Session {
   id            String   @id @default(uuid())
   userId        String
-  token         String   @unique
+  token         String?  @unique // Legacy token field
+  refreshToken  String   @unique
+  tokenFamily   String   // For refresh token rotation detection
   ipAddress     String?
   userAgent     String?
+  lastUsedAt    DateTime @default(now())
   expiresAt     DateTime
   createdAt     DateTime @default(now())
-  
+
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([token])
+  @@index([refreshToken])
+  @@index([tokenFamily])
   @@index([userId])
 }
 
