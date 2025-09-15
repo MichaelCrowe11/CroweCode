@@ -35,6 +35,8 @@ model User {
   farms           Farm[]
   labSamples      LabSample[]
   notifications   Notification[]
+  customer        Customer?
+  usageQuota      UsageQuota?
   
   @@index([email])
   @@index([role])
@@ -593,4 +595,255 @@ model SystemConfig {
   updatedAt     DateTime @updatedAt
   
   @@index([key])
+}
+// Additional Prisma models for billing - Add these to your main schema.prisma file
+
+// ==================== BILLING & SUBSCRIPTIONS ====================
+
+model Customer {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  stripeCustomerId  String   @unique
+  email             String
+  name              String?
+  billingAddress    Json?    // Stripe address object
+  paymentMethod     String?  // Default payment method ID
+  currency          String   @default("usd")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptions     Subscription[]
+  invoices          Invoice[]
+  usageRecords      UsageRecord[]
+  billingEvents     BillingEvent[]
+  
+  @@index([stripeCustomerId])
+  @@index([userId])
+}
+
+model Subscription {
+  id                    String   @id @default(uuid())
+  customerId            String
+  stripeSubscriptionId  String   @unique
+  stripePriceId         String
+  tier                  SubscriptionTier
+  status                SubscriptionStatus
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+  cancelAtPeriodEnd     Boolean  @default(false)
+  canceledAt            DateTime?
+  trialStart            DateTime?
+  trialEnd              DateTime?
+  metadata              Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations
+  customer              Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  addOns                SubscriptionAddOn[]
+  usageRecords          UsageRecord[]
+  
+  @@index([stripeSubscriptionId])
+  @@index([customerId])
+  @@index([status])
+}
+
+enum SubscriptionTier {
+  FREE
+  DEVELOPER
+  TEAM
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  PAST_DUE
+  UNPAID
+  PAUSED
+}
+
+model SubscriptionAddOn {
+  id                String   @id @default(uuid())
+  subscriptionId    String
+  addOnId           String   // agriculture, mycology, ai_training, etc.
+  stripePriceId     String
+  quantity          Int      @default(1)
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  subscription      Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  
+  @@index([subscriptionId])
+  @@unique([subscriptionId, addOnId])
+}
+
+model UsageRecord {
+  id                String   @id @default(uuid())
+  customerId        String
+  subscriptionId    String?
+  type              UsageType
+  quantity          Int
+  unitPrice         Float?   // Price per unit if applicable
+  totalCost         Float?   // Total cost if applicable
+  timestamp         DateTime @default(now())
+  description       String?
+  metadata          Json?
+  
+  // Relations
+  customer          Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  subscription      Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  
+  @@index([customerId])
+  @@index([subscriptionId])
+  @@index([type])
+  @@index([timestamp])
+}
+
+enum UsageType {
+  AI_REQUEST
+  FILE_STORAGE
+  BUILD_MINUTES
+  TERMINAL_MINUTES
+  API_CALL
+  COLLABORATOR_SEAT
+  CUSTOM_DOMAIN
+  BANDWIDTH
+}
+
+model Invoice {
+  id                String   @id @default(uuid())
+  customerId        String
+  stripeInvoiceId   String   @unique
+  invoiceNumber     String?
+  status            InvoiceStatus
+  amount            Int      // Amount in cents
+  currency          String   @default("usd")
+  paid              Boolean  @default(false)
+  paidAt            DateTime?
+  dueDate           DateTime?
+  billingPeriodStart DateTime
+  billingPeriodEnd   DateTime
+  hostedInvoiceUrl  String?
+  invoicePdf        String?
+  metadata          Json?
+  createdAt         DateTime @default(now())
+  
+  // Relations
+  customer          Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@index([stripeInvoiceId])
+  @@index([customerId])
+  @@index([status])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  UNCOLLECTIBLE
+  VOID
+}
+
+model BillingEvent {
+  id                String   @id @default(uuid())
+  customerId        String
+  type              BillingEventType
+  description       String
+  amount            Float?
+  metadata          Json?
+  stripeEventId     String?  @unique
+  processedAt       DateTime?
+  createdAt         DateTime @default(now())
+  
+  // Relations
+  customer          Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  @@index([customerId])
+  @@index([type])
+  @@index([stripeEventId])
+}
+
+enum BillingEventType {
+  SUBSCRIPTION_CREATED
+  SUBSCRIPTION_UPDATED
+  SUBSCRIPTION_CANCELED
+  SUBSCRIPTION_RENEWED
+  PAYMENT_SUCCEEDED
+  PAYMENT_FAILED
+  INVOICE_CREATED
+  INVOICE_PAID
+  INVOICE_PAYMENT_FAILED
+  TRIAL_STARTED
+  TRIAL_ENDING
+  TRIAL_ENDED
+  USAGE_RECORD_CREATED
+  CREDIT_APPLIED
+  REFUND_ISSUED
+}
+
+model PromoCode {
+  id                String   @id @default(uuid())
+  code              String   @unique
+  description       String?
+  discountType      DiscountType
+  discountValue     Float    // Percentage or fixed amount
+  applicableTiers   String[] // Array of tier IDs
+  maxUses           Int?
+  currentUses       Int      @default(0)
+  validFrom         DateTime @default(now())
+  validUntil        DateTime
+  stripePromotionId String?
+  active            Boolean  @default(true)
+  metadata          Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([code])
+  @@index([active])
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model UsageQuota {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  tier              SubscriptionTier
+  
+  // Current usage counts (reset monthly)
+  aiRequestsUsed    Int      @default(0)
+  storageUsedGB     Float    @default(0)
+  buildMinutesUsed  Int      @default(0)
+  terminalMinutesUsed Int    @default(0)
+  apiCallsUsed      Int      @default(0)
+  
+  // Limits (from subscription tier + add-ons)
+  aiRequestsLimit   Int
+  storageLimitGB    Float
+  buildMinutesLimit Int
+  terminalMinutesLimit Int
+  apiCallsLimit     Int
+  collaboratorsLimit Int
+  privateReposLimit Int
+  customDomainsLimit Int
+  
+  // Reset tracking
+  lastResetAt       DateTime @default(now())
+  nextResetAt       DateTime
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
 }
