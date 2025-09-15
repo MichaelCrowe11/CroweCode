@@ -1,0 +1,13 @@
+Create Pipedream OAuth client
+Name
+CryptoCrow-e
+Credentials
+Client ID
+SClWOVEDqjjVQwiXmOJOx8VgcMmMWwdN5RgoXLcxD9w
+Client Secret
+DsgCktCmrkIufylLGkrx6EheQARbY_USUVyuk4hoSzo
+Save these credentials to your secrets manager. The secret won't be displayed again.
+
+Learn more about the Pipedream API
+Cancel
+Close

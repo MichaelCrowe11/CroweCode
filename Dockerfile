@@ -60,8 +60,8 @@ COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy scripts
-COPY scripts/docker-entrypoint.sh ./scripts/
-RUN chmod +x ./scripts/docker-entrypoint.sh
+COPY scripts/docker-entrypoint-simple.sh ./scripts/
+RUN chmod +x ./scripts/docker-entrypoint-simple.sh
 
 # Set correct permissions
 RUN chown -R nextjs:nodejs /app
@@ -80,4 +80,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Start the application
-CMD ["./scripts/docker-entrypoint.sh"]
+CMD ["./scripts/docker-entrypoint-simple.sh"]

@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -11,7 +12,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  
+
   // Image optimization
   images: {
     remotePatterns: [
@@ -28,10 +29,10 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   },
-  
+
   // Performance optimizations
   reactStrictMode: true,
-  
+
   // Security headers
   async headers() {
     return [
@@ -61,6 +62,10 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
           }
         ]
       },
@@ -75,7 +80,7 @@ const nextConfig: NextConfig = {
       }
     ];
   },
-  
+
   // Redirects
   async redirects() {
     return [
@@ -91,7 +96,7 @@ const nextConfig: NextConfig = {
       }
     ];
   },
-  
+
   // Rewrites for clean URLs
   async rewrites() {
     return [
@@ -105,13 +110,13 @@ const nextConfig: NextConfig = {
       }
     ];
   },
-  
+
   // Environment variables
   env: {
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version || '1.0.0',
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
   },
-  
+
   // Webpack configuration (only used when not using Turbopack)
   webpack: (config, { isServer }) => {
     // Only apply webpack optimizations when not using Turbopack
@@ -167,7 +172,7 @@ const nextConfig: NextConfig = {
         },
       };
     }
-    
+
     // Bundle analyzer in development
     if (!isServer && process.env.ANALYZE === 'true') {
       const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
@@ -179,10 +184,10 @@ const nextConfig: NextConfig = {
         })
       );
     }
-    
+
     return config;
   },
-  
+
   // Experimental features
   experimental: {
     // optimizeCss: true, // Disabled - causes build issues with missing critters
@@ -190,4 +195,22 @@ const nextConfig: NextConfig = {
   }
 };
 
-export default nextConfig;
+// Wrap with Sentry configuration
+export default withSentryConfig(nextConfig, {
+  // Sentry webpack plugin options
+  silent: true,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Upload source maps only in production
+  widenClientFileUpload: true,
+
+  // Routes to tunnel sentry requests through our server
+  tunnelRoute: "/monitoring",
+
+  // Hide source maps from generated client bundles
+  hideSourceMaps: true,
+
+  // Disable automatic instrumentation (we'll do it manually)
+  disableLogger: true,
+});
