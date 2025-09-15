@@ -1,0 +1,18 @@
+# BFG Repo Cleaner replacement patterns for exposed secrets
+# This will replace the patterns with ***REMOVED*** in git history
+
+# xAI API Key pattern
+regex:xai-[A-Za-z0-9_\-]{30,100}===>***XAI-KEY-REMOVED***
+
+# OpenAI API Key patterns
+regex:sk-proj-[A-Za-z0-9_\-]{50,200}===>***OPENAI-KEY-REMOVED***
+regex:sk-[A-Za-z0-9_\-]{30,100}===>***OPENAI-KEY-REMOVED***
+
+# Anthropic API Key pattern
+regex:sk-ant-[A-Za-z0-9_\-]{30,200}===>***ANTHROPIC-KEY-REMOVED***
+
+# Generic JWT secrets
+regex:crowe-logic-secret-key-change-in-production===>***JWT-SECRET-REMOVED***
+
+# Any other potential API keys
+regex:[A-Za-z0-9]{32,}===>***API-KEY-REMOVED*** (if longer than 32 chars)
