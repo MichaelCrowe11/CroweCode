@@ -11,12 +11,12 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install dependencies
-RUN npm ci --only=production && \
+RUN npm ci --legacy-peer-deps --only=production && \
     npm cache clean --force
 
 # Install dev dependencies for building
 COPY package*.json ./
-RUN npm ci && \
+RUN npm ci --legacy-peer-deps && \
     npx prisma generate
 
 # Stage 2: Builder
