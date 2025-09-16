@@ -1,16 +1,18 @@
 #!/bin/bash
 
-# Crowe Logic Platform - Health Check Script
-# Monitors system health and sends alerts on issues
+# CroweCode Platform - Enhanced Health Check Script
+# Comprehensive health monitoring for all services
 
 set -e
 
 # Configuration
-API_URL="${API_URL:-https://croweos.com}"
+DOMAIN="${DOMAIN:-crowecode.com}"
+API_URL="https://$DOMAIN"
 SLACK_WEBHOOK="${SLACK_WEBHOOK_URL}"
 CHECK_INTERVAL=60  # seconds
 MAX_RETRIES=3
 ALERT_THRESHOLD=2  # consecutive failures before alert
+TIMEOUT=10
 
 # Health check results
 declare -A check_results
@@ -114,25 +116,28 @@ check_redis() {
 # Check Docker containers
 check_docker() {
     echo -n "Checking Docker containers... "
-    
-    local containers=("crowe-ide" "crowe-db" "crowe-cache" "crowe-proxy")
+
+    local containers=("crowe-app" "crowe-db" "crowe-cache" "crowe-proxy" "crowe-mcp" "crowe-websocket" "crowe-ai-worker" "crowe-analysis" "crowe-prometheus" "crowe-grafana")
     local all_running=true
-    
+    local failed_containers=()
+
     for container in "${containers[@]}"; do
         if ! docker ps | grep -q "$container"; then
-            echo -e "${RED}$container not running${NC}"
+            failed_containers+=("$container")
             all_running=false
         fi
     done
-    
+
     if $all_running; then
-        echo -e "${GREEN}OK${NC}"
+        echo -e "${GREEN}OK${NC} (${#containers[@]} containers running)"
         check_results["docker"]="ok"
         failure_counts["docker"]=0
         return 0
     else
+        echo -e "${RED}FAILED${NC} (${failed_containers[*]} not running)"
         check_results["docker"]="failed"
         ((failure_counts["docker"]++))
+        send_alert "critical" "Docker Services" "Containers not running: ${failed_containers[*]}"
         return 1
     fi
 }
@@ -185,11 +190,50 @@ check_memory() {
     fi
 }
 
+# Check CroweCode specific services
+check_crowecode_services() {
+    echo -n "Checking CroweCode services... "
+
+    local services=(
+        "MCP Server:$API_URL/mcp/health"
+        "WebSocket:$API_URL/ws"
+        "AI Worker:$API_URL/admin/queues"
+        "Analysis Engine:$API_URL/analysis/health"
+        "Grafana:$API_URL/grafana"
+        "Prometheus:$API_URL/metrics"
+    )
+
+    local failed_services=()
+
+    for service_url in "${services[@]}"; do
+        IFS=':' read -r service_name url <<< "$service_url"
+
+        response=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$url" 2>/dev/null || echo "000")
+
+        if [[ ! "$response" =~ ^(200|302|404)$ ]]; then
+            failed_services+=("$service_name($response)")
+        fi
+    done
+
+    if [ ${#failed_services[@]} -eq 0 ]; then
+        echo -e "${GREEN}OK${NC} (All services responding)"
+        check_results["crowecode_services"]="ok"
+        failure_counts["crowecode_services"]=0
+        return 0
+    else
+        echo -e "${RED}FAILED${NC} (${failed_services[*]})"
+        check_results["crowecode_services"]="failed"
+        ((failure_counts["crowecode_services"]++))
+        send_alert "critical" "CroweCode Services" "Failed services: ${failed_services[*]}"
+        return 1
+    fi
+}
+
 # Check SSL certificate expiry
 check_ssl() {
     echo -n "Checking SSL certificate... "
-    
-    local domain="croweos.com"
+
+    local domain="$DOMAIN"
     local expiry=$(echo | openssl s_client -servername "$domain" -connect "$domain:443" 2>/dev/null | openssl x509 -noout -dates 2>/dev/null | grep notAfter | cut -d= -f2)
     
     if [ -z "$expiry" ]; then
@@ -256,6 +300,7 @@ run_health_checks() {
     check_database || overall_status="degraded"
     check_redis || overall_status="degraded"
     check_docker || overall_status="degraded"
+    check_crowecode_services || overall_status="degraded"
     check_disk_space || overall_status="degraded"
     check_memory || overall_status="degraded"
     check_ssl || true  # Don't affect overall status

@@ -1,0 +1,99 @@
+# CroweCode Platform - Blackbox Exporter Configuration
+# External endpoint monitoring and health checks
+
+modules:
+  # HTTP GET check
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      method: GET
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: true
+      tls_config:
+        insecure_skip_verify: false
+
+  # HTTP POST check for API endpoints
+  http_post_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      method: POST
+      headers:
+        Content-Type: application/json
+      body: '{"health_check": true}'
+      valid_status_codes: [200, 201]
+
+  # HTTPS with SSL verification
+  http_2xx_ssl:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      method: GET
+      tls_config:
+        insecure_skip_verify: false
+      fail_if_not_ssl: true
+
+  # TCP connectivity check
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
+
+  # DNS lookup check
+  dns:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "crowecode.com"
+      query_type: "A"
+
+  # ICMP ping check
+  icmp:
+    prober: icmp
+    timeout: 5s
+    icmp:
+      preferred_ip_protocol: "ip4"
+
+  # Custom health check for CroweCode services
+  crowecode_health:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        User-Agent: "CroweCode-Monitor/1.0"
+      fail_if_not_ssl: true
+      tls_config:
+        insecure_skip_verify: false
+
+  # WebSocket connectivity check
+  websocket_check:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1"]
+      valid_status_codes: [101, 200]
+      method: GET
+      headers:
+        Connection: Upgrade
+        Upgrade: websocket
+        Sec-WebSocket-Key: "dGhlIHNhbXBsZSBub25jZQ=="
+        Sec-WebSocket-Version: "13"
+
+  # Database connection check via HTTP proxy
+  database_health:
+    prober: http
+    timeout: 10s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: [200]
+      method: GET
+      headers:
+        Authorization: "Bearer ${MONITORING_TOKEN}"

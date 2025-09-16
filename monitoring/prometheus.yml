@@ -1,0 +1,95 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'crowecode-monitor'
+    environment: 'production'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files:
+  - /etc/prometheus/alerts/*.yml
+
+scrape_configs:
+  # Main application metrics
+  - job_name: 'crowecode-app'
+    static_configs:
+      - targets: ['app:3000']
+        labels:
+          service: 'main-app'
+          tier: 'frontend'
+
+  # MCP Server metrics
+  - job_name: 'mcp-server'
+    static_configs:
+      - targets: ['mcp-server:3001']
+        labels:
+          service: 'mcp'
+          tier: 'integration'
+
+  # WebSocket Server metrics
+  - job_name: 'websocket-server'
+    static_configs:
+      - targets: ['websocket:3002']
+        labels:
+          service: 'websocket'
+          tier: 'realtime'
+
+  # AI Worker metrics
+  - job_name: 'ai-worker'
+    static_configs:
+      - targets: ['ai-worker:3003']
+        labels:
+          service: 'ai-worker'
+          tier: 'processing'
+
+  # Analysis Engine metrics
+  - job_name: 'analysis-engine'
+    static_configs:
+      - targets: ['analysis-engine:3004']
+        labels:
+          service: 'analysis'
+          tier: 'processing'
+
+  # PostgreSQL metrics (using postgres_exporter)
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres:5432']
+        labels:
+          service: 'database'
+          tier: 'data'
+
+  # Redis metrics (using redis_exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+        labels:
+          service: 'cache'
+          tier: 'data'
+
+  # Node Exporter for system metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'system'
+          tier: 'infrastructure'
+
+  # NGINX metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:9113']
+        labels:
+          service: 'proxy'
+          tier: 'infrastructure'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'monitoring'
+          tier: 'infrastructure'

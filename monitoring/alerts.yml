@@ -1,0 +1,231 @@
+# CroweCode Platform - Prometheus Alert Rules
+# Critical and warning alerts for production monitoring
+
+groups:
+  - name: crowecode_platform_alerts
+    rules:
+      # Service Health Alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.instance }} is down"
+          description: "{{ $labels.job }} service on {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.instance }}"
+          description: "Error rate is {{ $value }} errors per second on {{ $labels.instance }}."
+
+      # Resource Alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 80% for more than 5 minutes on {{ $labels.instance }}."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% for more than 5 minutes on {{ $labels.instance }}."
+
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is above 85% on {{ $labels.instance }}."
+
+      - alert: CriticalDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical disk space on {{ $labels.instance }}"
+          description: "Disk usage is above 95% on {{ $labels.instance }}. Immediate action required."
+
+      # Database Alerts
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database is not responding."
+
+      - alert: PostgreSQLTooManyConnections
+        expr: sum(pg_stat_activity_count) by (instance) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL has too many connections"
+          description: "PostgreSQL has {{ $value }} active connections, which is approaching the limit."
+
+      - alert: PostgreSQLSlowQueries
+        expr: rate(pg_stat_statements_mean_time_seconds[5m]) > 1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL slow queries detected"
+          description: "Average query time is {{ $value }} seconds over the last 5 minutes."
+
+      # Redis Alerts
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache server is not responding."
+
+      - alert: RedisHighMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis memory usage is {{ $value }}% of allocated memory."
+
+      # Application Specific Alerts
+      - alert: CroweCodeAIWorkerDown
+        expr: up{job="ai-worker"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CroweCode AI Worker is down"
+          description: "AI processing service is not responding, affecting autonomous coding features."
+
+      - alert: MCPServerDown
+        expr: up{job="mcp-server"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MCP Server is down"
+          description: "Model Context Protocol server is not responding, affecting AI integrations."
+
+      - alert: WebSocketServerDown
+        expr: up{job="websocket-server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "WebSocket Server is down"
+          description: "Real-time collaboration service is not responding."
+
+      - alert: AnalysisEngineDown
+        expr: up{job="analysis-engine"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Code Analysis Engine is down"
+          description: "Code analysis and refactoring service is not responding."
+
+      # AI Processing Alerts
+      - alert: HighAITaskQueue
+        expr: ai_task_queue_size > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AI task queue is backing up"
+          description: "AI task queue has {{ $value }} pending tasks for more than 5 minutes."
+
+      - alert: AITaskFailureRate
+        expr: rate(ai_tasks_failed_total[5m]) / rate(ai_tasks_total[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High AI task failure rate"
+          description: "AI task failure rate is {{ $value }}% over the last 5 minutes."
+
+      # Security Alerts
+      - alert: TooManyFailedLogins
+        expr: rate(auth_failures_total[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate of authentication failures"
+          description: "{{ $value }} authentication failures per second over the last 5 minutes."
+
+      - alert: SuspiciousActivity
+        expr: rate(http_requests_total{status="403"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate of forbidden requests"
+          description: "{{ $value }} forbidden requests per second, possible security threat."
+
+      # SSL Certificate Alerts
+      - alert: SSLCertificateExpiryWarning
+        expr: (ssl_certificate_expiry_timestamp - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.instance }} expires in {{ $value }} days."
+
+      - alert: SSLCertificateExpiryCritical
+        expr: (ssl_certificate_expiry_timestamp - time()) / 86400 < 7
+        for: 1h
+        labels:
+          severity: critical
+        annotations:
+          summary: "SSL certificate expiring very soon"
+          description: "SSL certificate for {{ $labels.instance }} expires in {{ $value }} days. Immediate renewal required."
+
+      # Backup Alerts
+      - alert: BackupFailure
+        expr: backup_last_success_timestamp < (time() - 86400)
+        for: 1h
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database backup failure"
+          description: "Database backup has not succeeded for more than 24 hours."
+
+      # Container Health Alerts
+      - alert: ContainerRestartLoop
+        expr: rate(container_last_seen[5m]) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} is restarting frequently"
+          description: "Container {{ $labels.name }} has restarted {{ $value }} times in the last 5 minutes."
+
+      - alert: ContainerHighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 90
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container {{ $labels.name }} high memory usage"
+          description: "Container {{ $labels.name }} is using {{ $value }}% of allocated memory."

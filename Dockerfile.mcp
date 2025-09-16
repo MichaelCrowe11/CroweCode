@@ -1,0 +1,64 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy MCP server code
+COPY src/lib/marketplace/kilocode-integration.ts ./src/lib/marketplace/
+COPY src/lib/integration/ ./src/lib/integration/
+COPY src/lib/api/ ./src/lib/api/
+
+# Build TypeScript
+RUN npm install -g typescript
+RUN tsc
+
+# Create MCP server entry point
+RUN echo '#!/usr/bin/env node\n\
+const { KiloCodeMCPIntegration } = require("./dist/lib/marketplace/kilocode-integration");\n\
+const express = require("express");\n\
+const http = require("http");\n\
+\n\
+const app = express();\n\
+const server = http.createServer(app);\n\
+const port = process.env.MCP_PORT || 3001;\n\
+\n\
+const mcp = new KiloCodeMCPIntegration();\n\
+\n\
+app.use(express.json());\n\
+\n\
+app.post("/mcp/start", async (req, res) => {\n\
+  try {\n\
+    const result = await mcp.startMCPServer(req.body.serverName, req.body.config);\n\
+    res.json(result);\n\
+  } catch (error) {\n\
+    res.status(500).json({ error: error.message });\n\
+  }\n\
+});\n\
+\n\
+app.post("/mcp/call", async (req, res) => {\n\
+  try {\n\
+    const result = await mcp.callTool(req.body.serverName, req.body.toolName, req.body.args);\n\
+    res.json(result);\n\
+  } catch (error) {\n\
+    res.status(500).json({ error: error.message });\n\
+  }\n\
+});\n\
+\n\
+app.get("/health", (req, res) => {\n\
+  res.json({ status: "healthy", servers: mcp.listServers() });\n\
+});\n\
+\n\
+server.listen(port, () => {\n\
+  console.log(`MCP Server running on port ${port}`);\n\
+});\n\
+' > mcp-server.js
+
+EXPOSE 3001
+
+CMD ["node", "mcp-server.js"]

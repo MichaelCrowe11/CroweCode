@@ -1,0 +1,104 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+RUN npm install bull bull-board
+
+# Copy AI worker code
+COPY src/lib/ai/ ./src/lib/ai/
+COPY src/lib/analysis/ ./src/lib/analysis/
+COPY src/lib/deployment/ ./src/lib/deployment/
+COPY src/lib/ci-cd/ ./src/lib/ci-cd/
+
+# Build TypeScript
+RUN npm install -g typescript
+RUN tsc
+
+# Create AI worker entry point
+RUN echo '#!/usr/bin/env node\n\
+const { CroweCodeAutonomousAgent } = require("./dist/lib/ai/autonomous-agent");\n\
+const { CroweCodeAnalysisEngine } = require("./dist/lib/analysis/code-analysis-engine");\n\
+const Bull = require("bull");\n\
+const { createBullBoard } = require("@bull-board/api");\n\
+const { BullAdapter } = require("@bull-board/api/bullAdapter");\n\
+const { ExpressAdapter } = require("@bull-board/express");\n\
+const express = require("express");\n\
+\n\
+const app = express();\n\
+const port = process.env.WORKER_PORT || 3003;\n\
+\n\
+// Create task queues\n\
+const aiQueue = new Bull("ai-tasks", process.env.REDIS_URL);\n\
+const analysisQueue = new Bull("analysis-tasks", process.env.REDIS_URL);\n\
+\n\
+// Initialize services\n\
+const autonomousAgent = new CroweCodeAutonomousAgent();\n\
+const analysisEngine = new CroweCodeAnalysisEngine();\n\
+\n\
+// Process AI tasks\n\
+aiQueue.process(async (job) => {\n\
+  const { task, userId, projectId } = job.data;\n\
+  console.log(`Processing AI task: ${task.title}`);\n\
+  \n\
+  try {\n\
+    const result = await autonomousAgent.executeTask(task, { userId, projectId });\n\
+    return result;\n\
+  } catch (error) {\n\
+    console.error("AI task failed:", error);\n\
+    throw error;\n\
+  }\n\
+});\n\
+\n\
+// Process analysis tasks\n\
+analysisQueue.process(async (job) => {\n\
+  const { projectPath, options } = job.data;\n\
+  console.log(`Analyzing project: ${projectPath}`);\n\
+  \n\
+  try {\n\
+    const result = await analysisEngine.analyzeProject(projectPath, options);\n\
+    return result;\n\
+  } catch (error) {\n\
+    console.error("Analysis failed:", error);\n\
+    throw error;\n\
+  }\n\
+});\n\
+\n\
+// Set up Bull Board for monitoring\n\
+const serverAdapter = new ExpressAdapter();\n\
+serverAdapter.setBasePath("/admin/queues");\n\
+\n\
+createBullBoard({\n\
+  queues: [\n\
+    new BullAdapter(aiQueue),\n\
+    new BullAdapter(analysisQueue)\n\
+  ],\n\
+  serverAdapter\n\
+});\n\
+\n\
+app.use("/admin/queues", serverAdapter.getRouter());\n\
+\n\
+app.get("/health", (req, res) => {\n\
+  res.json({ \n\
+    status: "healthy",\n\
+    queues: {\n\
+      ai: aiQueue.name,\n\
+      analysis: analysisQueue.name\n\
+    }\n\
+  });\n\
+});\n\
+\n\
+app.listen(port, () => {\n\
+  console.log(`AI Worker running on port ${port}`);\n\
+  console.log(`Bull Board available at http://localhost:${port}/admin/queues`);\n\
+});\n\
+' > ai-worker.js
+
+EXPOSE 3003
+
+CMD ["node", "ai-worker.js"]

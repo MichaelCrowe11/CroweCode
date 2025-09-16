@@ -26,6 +26,18 @@ services:
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
       - GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}
+      # Enhanced AI Provider Keys
+      - GROK_API_KEY=${GROK_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - CODEX_API_KEY=${CODEX_API_KEY}
+      # KiloCode MCP Integration
+      - MCP_SERVER_URL=${MCP_SERVER_URL:-http://mcp-server:3001}
+      - MCP_AUTH_TOKEN=${MCP_AUTH_TOKEN}
+      # VS Code Marketplace
+      - VSCODE_MARKETPLACE_TOKEN=${VSCODE_MARKETPLACE_TOKEN}
+      # WebSocket for Real-time Collaboration
+      - WS_PORT=3002
+      - WS_HOST=0.0.0.0
     volumes:
       - ./uploads:/app/uploads
       - ./credentials:/app/credentials:ro
@@ -64,7 +76,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: crowe-cache
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-RedisPass2025}
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:-RedisPass2025}"]
     volumes:
       - redis_data:/data
     ports:
@@ -112,6 +124,123 @@ services:
       - crowe-network
     restart: "no"
 
+  # MCP Server for KiloCode Integration
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    container_name: crowe-mcp
+    environment:
+      - NODE_ENV=production
+      - MCP_PORT=3001
+      - MCP_AUTH_TOKEN=${MCP_AUTH_TOKEN}
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      - redis
+    networks:
+      - crowe-network
+    restart: unless-stopped
+
+  # WebSocket Server for Real-time Collaboration
+  websocket:
+    build:
+      context: .
+      dockerfile: Dockerfile.websocket
+    container_name: crowe-websocket
+    environment:
+      - NODE_ENV=production
+      - WS_PORT=3002
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-here}
+    ports:
+      - "127.0.0.1:3002:3002"
+    depends_on:
+      - redis
+    networks:
+      - crowe-network
+    restart: unless-stopped
+
+  # AI Agent Worker Service
+  ai-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: crowe-ai-worker
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://crowe:${DB_PASSWORD:-CroweDB2025}@postgres:5432/crowe_platform
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROK_API_KEY=${GROK_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - CODEX_API_KEY=${CODEX_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - crowe-network
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  # Code Analysis Engine Service
+  analysis-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.analysis
+    container_name: crowe-analysis
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://crowe:${DB_PASSWORD:-CroweDB2025}@postgres:5432/crowe_platform
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - crowe-network
+    restart: unless-stopped
+
+  # Monitoring Service with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: crowe-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - crowe-network
+    restart: unless-stopped
+
+  # Grafana for Metrics Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: crowe-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_SERVER_ROOT_URL=https://crowecode.com/grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - crowe-network
+    restart: unless-stopped
+
   # Backup Service
   backup:
     image: postgres:15-alpine
@@ -138,6 +267,10 @@ volumes:
   redis_data:
     driver: local
   nginx_cache:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
     driver: local
 
 networks:

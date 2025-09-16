@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Crowe Logic Platform - Production Deployment Script
-# This script deploys the full production IDE with VSCode Server
+# CroweCode Platform - Production Deployment Script
+# Deploy to VPS at crowecode.com with enhanced AI features
 
 set -e
 
-echo "🚀 Deploying Crowe Logic Production IDE"
-echo "========================================"
+echo "🚀 Deploying CroweCode Platform to Production"
+echo "=============================================="
 
 # Check prerequisites
 check_requirements() {

@@ -1,0 +1,107 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install system dependencies for code analysis
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    git \
+    bash \
+    curl
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+RUN npm install @typescript-eslint/parser @typescript-eslint/eslint-plugin \
+    eslint prettier babel-parser \
+    @babel/traverse @babel/types
+
+# Install Python analysis tools
+RUN pip3 install --no-cache-dir pylint flake8 mypy
+
+# Copy analysis engine code
+COPY src/lib/analysis/ ./src/lib/analysis/
+COPY src/lib/ai/ ./src/lib/ai/
+
+# Build TypeScript
+RUN npm install -g typescript
+RUN tsc
+
+# Create analysis engine entry point
+RUN echo '#!/usr/bin/env node\n\
+const { CroweCodeAnalysisEngine } = require("./dist/lib/analysis/code-analysis-engine");\n\
+const express = require("express");\n\
+const multer = require("multer");\n\
+const path = require("path");\n\
+const fs = require("fs").promises;\n\
+\n\
+const app = express();\n\
+const port = process.env.ANALYSIS_PORT || 3004;\n\
+const upload = multer({ dest: "/tmp/uploads/" });\n\
+\n\
+const analysisEngine = new CroweCodeAnalysisEngine();\n\
+\n\
+app.use(express.json());\n\
+\n\
+// Analyze uploaded project\n\
+app.post("/analyze", upload.single("project"), async (req, res) => {\n\
+  try {\n\
+    const projectPath = req.file ? req.file.path : req.body.projectPath;\n\
+    const options = req.body.options || {};\n\
+    \n\
+    const result = await analysisEngine.analyzeProject(projectPath, options);\n\
+    \n\
+    // Clean up uploaded file if exists\n\
+    if (req.file) {\n\
+      await fs.unlink(req.file.path).catch(() => {});\n\
+    }\n\
+    \n\
+    res.json(result);\n\
+  } catch (error) {\n\
+    res.status(500).json({ error: error.message });\n\
+  }\n\
+});\n\
+\n\
+// Analyze specific file\n\
+app.post("/analyze/file", async (req, res) => {\n\
+  try {\n\
+    const { filePath, content, language } = req.body;\n\
+    const result = await analysisEngine.analyzeFile(filePath, content, language);\n\
+    res.json(result);\n\
+  } catch (error) {\n\
+    res.status(500).json({ error: error.message });\n\
+  }\n\
+});\n\
+\n\
+// Get refactoring suggestions\n\
+app.post("/refactor", async (req, res) => {\n\
+  try {\n\
+    const { code, language, context } = req.body;\n\
+    const suggestions = await analysisEngine.suggestRefactoring(code, language, context);\n\
+    res.json(suggestions);\n\
+  } catch (error) {\n\
+    res.status(500).json({ error: error.message });\n\
+  }\n\
+});\n\
+\n\
+// Health check\n\
+app.get("/health", (req, res) => {\n\
+  res.json({ \n\
+    status: "healthy",\n\
+    supportedLanguages: analysisEngine.supportedLanguages,\n\
+    version: "1.0.0"\n\
+  });\n\
+});\n\
+\n\
+app.listen(port, () => {\n\
+  console.log(`Code Analysis Engine running on port ${port}`);\n\
+});\n\
+' > analysis-server.js
+
+EXPOSE 3004
+
+CMD ["node", "analysis-server.js"]

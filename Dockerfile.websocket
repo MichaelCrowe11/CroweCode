@@ -1,0 +1,91 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+RUN npm install ws socket.io socket.io-redis
+
+# Copy WebSocket server code
+COPY src/lib/collaboration/ ./src/lib/collaboration/
+COPY src/lib/api/ ./src/lib/api/
+
+# Build TypeScript
+RUN npm install -g typescript
+RUN tsc
+
+# Create WebSocket server entry point
+RUN echo '#!/usr/bin/env node\n\
+const { RealTimeCollaborationService } = require("./dist/lib/collaboration/real-time-collaboration");\n\
+const { createServer } = require("http");\n\
+const { Server } = require("socket.io");\n\
+const { createAdapter } = require("@socket.io/redis-adapter");\n\
+const { createClient } = require("redis");\n\
+\n\
+const port = process.env.WS_PORT || 3002;\n\
+const httpServer = createServer();\n\
+\n\
+const io = new Server(httpServer, {\n\
+  cors: {\n\
+    origin: process.env.NEXTAUTH_URL || "https://crowecode.com",\n\
+    credentials: true\n\
+  },\n\
+  transports: ["websocket", "polling"]\n\
+});\n\
+\n\
+// Redis adapter for scaling\n\
+const pubClient = createClient({ url: process.env.REDIS_URL });\n\
+const subClient = pubClient.duplicate();\n\
+\n\
+Promise.all([pubClient.connect(), subClient.connect()]).then(() => {\n\
+  io.adapter(createAdapter(pubClient, subClient));\n\
+  \n\
+  const collaborationService = new RealTimeCollaborationService();\n\
+  \n\
+  io.on("connection", (socket) => {\n\
+    console.log("Client connected:", socket.id);\n\
+    \n\
+    socket.on("join-session", async (data) => {\n\
+      try {\n\
+        const session = await collaborationService.createSession({\n\
+          projectId: data.projectId,\n\
+          type: data.type || "code",\n\
+          participants: [{\n\
+            userId: data.userId,\n\
+            name: data.userName,\n\
+            role: "editor"\n\
+          }]\n\
+        });\n\
+        socket.join(session.id);\n\
+        socket.emit("session-joined", session);\n\
+      } catch (error) {\n\
+        socket.emit("error", { message: error.message });\n\
+      }\n\
+    });\n\
+    \n\
+    socket.on("code-change", (data) => {\n\
+      socket.to(data.sessionId).emit("code-update", data);\n\
+    });\n\
+    \n\
+    socket.on("cursor-position", (data) => {\n\
+      socket.to(data.sessionId).emit("cursor-update", data);\n\
+    });\n\
+    \n\
+    socket.on("disconnect", () => {\n\
+      console.log("Client disconnected:", socket.id);\n\
+    });\n\
+  });\n\
+  \n\
+  httpServer.listen(port, () => {\n\
+    console.log(`WebSocket server running on port ${port}`);\n\
+  });\n\
+});\n\
+' > websocket-server.js
+
+EXPOSE 3002
+
+CMD ["node", "websocket-server.js"]
