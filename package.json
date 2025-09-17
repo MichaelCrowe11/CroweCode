@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
+  "build": "next build",
+    "prestart": "prisma migrate deploy",
+  "start": "node server/unified-server.mjs",
     "lint": "eslint",
     "test": "vitest run --reporter=verbose",
     "test:dev": "vitest",
@@ -31,7 +32,8 @@
     "gcp:build": "gcloud builds submit --config=gcp-deploy/cloudbuild.yaml",
     "gcp:deploy": "gcloud run deploy crowe-logic-platform --source .",
     "gcp:logs": "gcloud logging read 'resource.type=cloud_run_revision' --limit 50",
-    "worker": "node scripts/worker.js"
+    "worker": "node scripts/worker.js",
+    "env:verify": "node scripts/verify-env.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.61.0",
@@ -130,7 +132,8 @@
     "supertest": "^7.1.4",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^1.0.4",
+  "vitest": "^1.0.4",
+  "ts-node": "^10.9.2",
     "webpack-bundle-analyzer": "^4.10.1",
     "zod": "^4.1.5"
   }

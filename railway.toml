@@ -1,13 +1,13 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && npm run build"
+buildCommand = "npm ci && npx prisma generate && npm run build"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "npm start" # prisma migrate deploy handled by prestart script
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 5
 
 [[services]]
 name = "web"
@@ -15,10 +15,3 @@ port = 3000
 
 [services.web]
 domains = ["crowecode.com", "www.crowecode.com"]
-
-[[services]]
-name = "websocket"
-port = 8080
-
-[services.websocket]
-domains = ["ws.crowecode.com"]

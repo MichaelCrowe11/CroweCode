@@ -113,6 +113,9 @@ jobs:
           OPENAI_API_KEY: test-key  
           ANTHROPIC_API_KEY: test-key
 
+      - name: Verify environment schema (non-fatal)
+        run: node scripts/verify-env.cjs || echo "Env verify failed (expected for missing prod secrets in CI)"
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -121,6 +124,18 @@ jobs:
             .next/
             !.next/cache/
           retention-days: 1
+
+      - name: Metrics endpoint dry-run (local start)
+        run: |
+          npm start &
+          PID=$!
+          sleep 8
+          curl -f http://localhost:3000/api/metrics | head -n 20
+          kill $PID || true
+        env:
+          JWT_SECRET: test-jwt-secret-for-build-32-chars
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          PORT: 3000
 
   # E2E Testing (only on main branch)
   e2e-test:
@@ -264,6 +279,7 @@ jobs:
         run: |
           sleep 30 # Wait for deployment
           curl -f https://crowecode-staging.fly.dev/api/health || exit 1
+          curl -f https://crowecode-staging.fly.dev/api/metrics | head -n 20 || echo "Metrics endpoint not available"
 
   # Production deployment (manual approval required)
   deploy-production:

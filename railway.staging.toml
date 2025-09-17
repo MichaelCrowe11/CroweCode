@@ -1,0 +1,29 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm ci && npx prisma generate && npm run build"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+autoDeploy = true
+
+autoRollback = true
+
+[[services]]
+name = "web"
+port = 3000
+
+[services.web]
+# Use a temporary staging subdomain once assigned by Railway; custom domain optional
+# domains = ["staging.crowecode.com"]
+
+[[services]]
+name = "websocket"
+port = 8080
+
+[services.websocket]
+# domains = ["staging-ws.crowecode.com"]

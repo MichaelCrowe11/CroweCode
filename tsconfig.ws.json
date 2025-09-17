@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist-ws",
+  "module": "ESNext",
+    "target": "ES2019",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "types": ["node"],
+    "skipLibCheck": true,
+    "isolatedModules": false
+  },
+  "include": ["src/websocket-server.ts"],
+  "exclude": ["node_modules"]
+}
